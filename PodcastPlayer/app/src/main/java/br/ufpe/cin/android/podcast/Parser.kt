@@ -100,6 +100,7 @@ object Parser {
         var pubDate: String? = null
         var description: String? = null
         var downloadLink: String? = null
+        var imageLink: String? = null
         parser.require(XmlPullParser.START_TAG, null, "item")
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
@@ -116,11 +117,14 @@ object Parser {
                 description = readData(parser, "description")
             } else if (name == "guid") {
                 downloadLink = readData(parser, "guid")
+            } else if (name == "itunes:image") {
+                imageLink = parser.getAttributeValue(null, "href")
+                parser.next()
             } else {
                 skip(parser)
             }
         }
-        return ItemFeed(title!!, link!!, pubDate!!, description!!, downloadLink!!)
+        return ItemFeed(title!!, link!!, pubDate!!, description!!, downloadLink!!, imageLink!!)
     }
 
     // Processa tags de forma parametrizada no feed.

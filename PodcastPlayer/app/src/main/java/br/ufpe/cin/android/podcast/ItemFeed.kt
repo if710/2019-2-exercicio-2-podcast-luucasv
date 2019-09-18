@@ -10,7 +10,8 @@ data class ItemFeed(
     val pubDate: String,
     val description: String,
     @PrimaryKey
-    val downloadLink: String
+    val downloadLink: String,
+    val imageLink: String
 ) {
 
     override fun toString(): String {
