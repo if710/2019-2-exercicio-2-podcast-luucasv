@@ -2,6 +2,8 @@ package br.ufpe.cin.android.podcast
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.URL
@@ -18,7 +20,10 @@ class MainActivity : AppCompatActivity() {
         doAsync {
             val xml = URL(url).readText()
             val itemList = Parser.parse(xml)
-
+            uiThread {
+                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                recyclerView.adapter = ItemFeedAdapter(itemList)
+            }
         }
     }
 }
