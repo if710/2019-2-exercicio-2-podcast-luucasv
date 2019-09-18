@@ -13,17 +13,35 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        downloadXml("https://s3-us-west-1.amazonaws.com/podcasts.thepolyglotdeveloper.com/podcast.xml")
+        tryDownloadDataAndDisplayList("https://s3-us-west-1.amazonaws.com/podcasts.thepolyglotdeveloper.com/podcast.xml")
     }
 
-    fun downloadXml(url: String) {
+    fun tryDownloadDataAndDisplayList(url: String) {
         doAsync {
-            val xml = URL(url).readText()
-            val itemList = Parser.parse(xml)
+            try {
+                downloadXmlAndUpdateDatabase(url)
+            } catch (e: Exception) {
+                // ignore connection errors
+            }
+
+            val database = ItemFeedDatabase.getDatabase(this@MainActivity)
+            val itemList = database.itemFeedDao().getAll()
+
             uiThread {
-                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.adapter = ItemFeedAdapter(itemList)
+                displayAdapterItems(itemList)
             }
         }
+    }
+
+    fun downloadXmlAndUpdateDatabase(url: String) {
+        val xml = URL(url).readText()
+        val xmlItemList = Parser.parse(xml)
+        val database = ItemFeedDatabase.getDatabase(this@MainActivity)
+        database.itemFeedDao().insertAll(*xmlItemList.toTypedArray())
+    }
+
+    fun displayAdapterItems(itemFeedList: List<ItemFeed>) {
+        recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+        recyclerView.adapter = ItemFeedAdapter(itemFeedList)
     }
 }
